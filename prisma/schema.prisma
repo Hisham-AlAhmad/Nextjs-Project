@@ -1,0 +1,159 @@
+// Prisma Schema for Arcline Design Agency
+// Docs: https://pris.ly/d/prisma-schema
+// After any change to this file, run: npx prisma migrate dev --name describe_your_change
+// To view your database visually, run: npx prisma studio
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") // Connection string is in .env file
+}
+
+// ─────────────────────────────────────────────
+// AUTH & USERS
+// ─────────────────────────────────────────────
+
+// Dashboard users only — not website visitors
+// role: ADMIN = full access, EDITOR = restricted by permissions array
+// permissions: JSON array of allowed sections e.g. ["blog", "news"]
+//   an EDITOR with ["blog"] can only manage blog posts in the dashboard
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  password    String    // Always store bcrypt hashed, never plain text
+  role        Role      @default(EDITOR)
+  permissions Json      @default("[]")
+  createdAt   DateTime  @default(now())
+
+  // One user can author many blog/news posts
+  blogPosts   BlogPost[]
+  newsPosts   NewsPost[]
+}
+
+enum Role {
+  ADMIN  // Full dashboard access
+  EDITOR // Access limited to sections listed in permissions[]
+}
+
+// ─────────────────────────────────────────────
+// PROJECTS
+// ─────────────────────────────────────────────
+
+// Powers: /projects (listing) and /projects/[slug] (detail page)
+// Each project also has its own visitor inquiry form (see ProjectInquiry)
+model Project {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique // URL-friendly version of title e.g. "villa-nour" → /projects/villa-nour
+  excerpt     String    @db.Text     // Short preview shown on the /projects listing cards
+  description String    @db.LongText // Full content shown on the detail page
+  category    String    // e.g. "Residential", "Commercial", "Hospitality" — used for filtering
+  // Array of Cloudinary image URLs e.g. ["https://res.cloudinary.com/arcline/..."]
+  images      Json      @default("[]")
+  // Key-value project specs e.g. {"location": "Beirut", "area": "320m²", "year": "2023"}
+  details     Json      @default("{}")
+  published   Boolean   @default(false) // false = draft (dashboard only), true = visible on site
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt      // Auto-updates on every save
+
+  // One project can receive many visitor inquiries
+  inquiries   ProjectInquiry[]
+}
+
+// ─────────────────────────────────────────────
+// BLOG & NEWS
+// ─────────────────────────────────────────────
+
+// Powers: /blog (listing) and /blog/[slug] (detail page)
+// Blog = editorial articles, design tips, studio journal
+// content field stores raw HTML output from the TipTap rich text editor
+model BlogPost {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  excerpt     String    @db.Text      // Preview text shown on the blog listing page
+  content     String    @db.LongText  // Full HTML from TipTap editor
+  tags        Json      @default("[]") // e.g. ["interior", "minimalism", "lighting"]
+  published   Boolean   @default(false)
+  authorId    Int                      // Foreign key → User
+  author      User      @relation(fields: [authorId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Powers: /news (listing) and /news/[slug] (detail page)
+// News = press releases, awards, media mentions, announcements
+// Identical structure to BlogPost but kept separate so they
+//   can be managed, filtered, and displayed independently
+model NewsPost {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  excerpt     String    @db.Text
+  content     String    @db.LongText
+  published   Boolean   @default(false)
+  authorId    Int
+  author      User      @relation(fields: [authorId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// CMS — EDITABLE PAGE CONTENT
+// ─────────────────────────────────────────────
+
+// Allows Home, About, and Services page content to be edited from the dashboard
+//   without touching code or redeploying.
+//
+// Each row = one section of one page:
+//   page="home",    section="hero",    content={"heading": "...", "subheading": "...", "ctaText": "..."}
+//   page="home",    section="stats",   content={"projects": "120+", "years": "15"}
+//   page="about",   section="mission", content={"text": "..."}
+//   page="about",   section="team",    content=[{"name": "Sara", "role": "Founder", "image": "..."}]
+//   page="services",section="list",    content=[{"title": "Residential", "description": "..."}]
+//
+// To fetch in a page component:
+//   const hero = await prisma.pageContent.findUnique({ where: { page_section: { page: 'home', section: 'hero' } } })
+model PageContent {
+  id        Int      @id @default(autoincrement())
+  page      String   // "home" | "about" | "services"
+  section   String   // e.g. "hero", "mission", "team", "stats"
+  content   Json     // The actual editable data — structure varies per section
+  updatedAt DateTime @updatedAt
+
+  // Composite unique constraint: each page+section combo can only exist once
+  @@unique([page, section])
+}
+
+// ─────────────────────────────────────────────
+// FORM SUBMISSIONS
+// ─────────────────────────────────────────────
+
+// Stores every submission from the /contact page form
+// Visible in dashboard under Submissions → Contact
+model ContactSubmission {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String
+  projectType String?  // Optional dropdown value e.g. "Residential", "Commercial"
+  message     String   @db.Text
+  read        Boolean  @default(false) // false = unread (shows badge in dashboard)
+  createdAt   DateTime @default(now())
+}
+
+// Stores interest form submissions from each /projects/[slug] page
+// Visible in dashboard under Submissions → Inquiries (grouped by project)
+model ProjectInquiry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  projectId Int                     // Foreign key → Project
+  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+}

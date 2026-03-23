@@ -1,0 +1,39 @@
+:root {
+  /* Brand Colors */
+  --color-ink: #1C1A14;
+  --color-ink-light: #2E2A1E;
+  --color-gold: #C8A96E;
+  --color-cream: #F5F0E8;
+  --color-sand: #E8E0CE;
+  --color-stone: #8B8270;
+  --color-parchment: #FDFAF5;
+
+  /* Text */
+  --color-text-primary: #1C1A14;
+  --color-text-secondary: #4A4335;
+  --color-text-muted: #8B8270;
+  --color-text-hint: #B8AE9C;
+
+  /* Borders */
+  --color-border: #D4C9B0;
+  --color-border-light: #E8E0CE;
+
+  /* Status */
+  --color-error-text: #A32D2D;
+  --color-error-bg: #FCEBEB;
+  --color-error-border: #F09595;
+  --color-success-text: #3A7D44;
+  --color-success-bg: #EAF3DE;
+
+  /* Typography */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  /* Spacing */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+
+  /* Transitions */
+  --transition: 0.2s ease;
+}

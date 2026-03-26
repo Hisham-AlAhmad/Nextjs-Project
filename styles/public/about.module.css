@@ -28,7 +28,6 @@
 }
 
 .missionInner {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 0 40px;
   max-width: 800px;
@@ -103,7 +102,10 @@
   gap: 24px;
 }
 
-.memberCard {}
+.memberCard {
+  display: flex;
+  flex-direction: column;
+}
 
 .memberImage {
   aspect-ratio: 3/4;

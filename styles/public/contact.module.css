@@ -42,7 +42,10 @@
   padding-top: 8px;
 }
 
-.infoBlock {}
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+}
 
 .infoLabel {
   font-size: 10px;
@@ -72,7 +75,9 @@
   color: var(--color-ink);
 }
 
-.formWrap {}
+.formWrap {
+  min-width: 0;
+}
 
 /* Form Styles */
 .form {

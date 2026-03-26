@@ -1,0 +1,59 @@
+import prisma from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+
+export async function GET(request, { params }) {
+  try {
+    const { id } = await params
+    const post = await prisma.blogPost.findUnique({
+      where: { id: Number(id) },
+      include: { author: { select: { name: true } } },
+    })
+    if (!post) return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json(post)
+  } catch {
+    return Response.json({ error: 'Failed to fetch post' }, { status: 500 })
+  }
+}
+
+export async function PUT(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const { id } = await params
+    const body = await request.json()
+    const { title, slug, excerpt, content, tags, published } = body
+
+    const post = await prisma.blogPost.update({
+      where: { id: Number(id) },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(slug !== undefined && { slug }),
+        ...(excerpt !== undefined && { excerpt }),
+        ...(content !== undefined && { content }),
+        ...(tags !== undefined && { tags }),
+        ...(published !== undefined && { published }),
+      },
+    })
+    return Response.json(post)
+  } catch (err) {
+    if (err.code === 'P2025') return Response.json({ error: 'Not found' }, { status: 404 })
+    if (err.code === 'P2002') return Response.json({ error: 'Slug already exists' }, { status: 409 })
+    return Response.json({ error: 'Failed to update post' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const { id } = await params
+    await prisma.blogPost.delete({ where: { id: Number(id) } })
+    return Response.json({ success: true })
+  } catch (err) {
+    if (err.code === 'P2025') return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'Failed to delete post' }, { status: 500 })
+  }
+}

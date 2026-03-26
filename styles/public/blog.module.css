@@ -1,0 +1,113 @@
+.hero {
+  background: var(--color-ink);
+  padding: 80px 0;
+}
+
+.heroInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 400;
+  color: var(--color-parchment);
+  margin-bottom: 12px;
+}
+
+.heroSub {
+  font-size: 15px;
+  color: var(--color-stone);
+  max-width: 520px;
+}
+
+.section {
+  padding: 80px 0;
+}
+
+.sectionInner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.card {
+  display: block;
+  padding: 36px 0;
+  border-bottom: 0.5px solid var(--color-border-light);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition);
+}
+
+.card:first-child {
+  border-top: 0.5px solid var(--color-border-light);
+}
+
+.card:hover .cardTitle {
+  color: var(--color-gold);
+}
+
+.cardMeta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.date {
+  font-size: 12px;
+  color: var(--color-stone);
+  letter-spacing: 0.03em;
+}
+
+.author {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--color-ink);
+  margin-bottom: 10px;
+  line-height: 1.2;
+  transition: color var(--transition);
+}
+
+.cardExcerpt {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  background: var(--color-sand);
+  color: var(--color-stone);
+  border-radius: 10px;
+}
+
+.empty {
+  font-size: 15px;
+  color: var(--color-stone);
+  padding: 40px 0;
+}

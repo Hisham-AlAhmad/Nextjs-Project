@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'uploadthing.com' },
+      { protocol: 'https', hostname: 'utfs.io' },
+    ],
+  },
   webpack: (config) => {
     config.watchOptions = {
       ...(config.watchOptions || {}),

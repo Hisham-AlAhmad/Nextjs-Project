@@ -26,8 +26,8 @@
   --color-success-bg: #EAF3DE;
 
   /* Typography */
-  --font-display: var(--font-cormorant, Georgia, serif);
-  --font-body: var(--font-sans, sans-serif);
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
 
   /* Spacing */
   --radius-sm: 4px;

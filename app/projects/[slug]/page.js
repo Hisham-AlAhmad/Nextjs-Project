@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import PublicLayout from '@/components/public/PublicLayout'
 import ProjectInquiryForm from '@/components/public/ProjectInquiryForm'
 import Link from 'next/link'
+import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/public/projectDetail.module.css'
 
@@ -37,7 +38,7 @@ export default async function ProjectDetailPage({ params }) {
       <section className={styles.hero}>
         {images[0] && (
           <div className={styles.heroImage}>
-            <img src={images[0]} alt={project.title} className={styles.heroImg} />
+            <Image src={images[0]} alt={project.title} fill className={styles.heroImg} />
           </div>
         )}
         <div className={styles.heroOverlay}>
@@ -62,7 +63,7 @@ export default async function ProjectDetailPage({ params }) {
             <div className={styles.gallery}>
               {images.slice(1).map((img, i) => (
                 <div key={i} className={styles.galleryItem}>
-                  <img src={img} alt={`${project.title} ${i + 2}`} className={styles.galleryImg} />
+                  <Image src={img} alt={`${project.title} ${i + 2}`} fill className={styles.galleryImg} />
                 </div>
               ))}
             </div>

@@ -1,5 +1,6 @@
 import PublicLayout from '@/components/public/PublicLayout'
 import Link from 'next/link'
+import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/public/home.module.css'
 
@@ -90,7 +91,7 @@ export default async function HomePage() {
                 return (
                   <Link key={project.id} href={`/projects/${project.slug}`} className={styles.projectCard}>
                     <div className={styles.projectImage}>
-                      {images[0] && <img src={images[0]} alt={project.title} className={styles.img} />}
+                      {images[0] && <Image src={images[0]} alt={project.title} fill className={styles.img} />}
                     </div>
                     <div className={styles.projectInfo}>
                       <span className={styles.projectCategory}>{project.category}</span>

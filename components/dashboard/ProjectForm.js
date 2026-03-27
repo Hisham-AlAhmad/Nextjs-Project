@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import styles from '@/styles/dashboard/form.module.css'
+
+const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
 
 export default function ProjectForm({ project }) {
   const router = useRouter()
@@ -116,7 +119,11 @@ export default function ProjectForm({ project }) {
 
       <div className={styles.field}>
         <label className={styles.label}>Description *</label>
-        <textarea name="description" value={form.description} onChange={handleChange} className={styles.textarea} rows={10} required placeholder="Full project description (HTML supported)..." />
+        <RichTextEditor
+          value={form.description}
+          onChange={html => setForm(f => ({ ...f, description: html }))}
+          placeholder="Describe this project…"
+        />
       </div>
 
       {error && <p className={styles.error}>{error}</p>}

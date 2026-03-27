@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import { hasRichTextContent } from '@/lib/richTextUtils'
 import styles from '@/styles/dashboard/form.module.css'
+
+const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
 
 export default function NewsForm({ post }) {
   const router = useRouter()
@@ -36,6 +40,9 @@ export default function NewsForm({ post }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+
+    if (!hasRichTextContent(form.content)) { setError('Content is required'); return }
+
     setSaving(true)
 
     try {
@@ -106,7 +113,11 @@ export default function NewsForm({ post }) {
 
       <div className={styles.field}>
         <label className={styles.label}>Content *</label>
-        <textarea name="content" value={form.content} onChange={handleChange} className={styles.textarea} rows={14} required placeholder="HTML content..." />
+        <RichTextEditor
+          value={form.content}
+          onChange={html => setForm(f => ({ ...f, content: html }))}
+          placeholder="Write your news post…"
+        />
       </div>
 
       {error && <p className={styles.error}>{error}</p>}

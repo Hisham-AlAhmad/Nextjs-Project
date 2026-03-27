@@ -1,0 +1,140 @@
+.row td,
+.unreadRow td {
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--color-border-light);
+  vertical-align: top;
+  padding-right: 16px;
+  font-size: 12px;
+}
+
+.row:last-child td,
+.unreadRow:last-child td {
+  border-bottom: none;
+}
+
+.unreadRow td {
+  background: rgba(200, 169, 110, 0.05);
+}
+
+.tdBold {
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.tdMuted {
+  color: var(--color-stone);
+  white-space: nowrap;
+}
+
+.tdDate {
+  color: var(--color-stone);
+  white-space: nowrap;
+}
+
+.emailLink {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-bottom: 0.5px solid transparent;
+  transition: border-color var(--transition);
+  white-space: nowrap;
+}
+
+.emailLink:hover {
+  border-color: var(--color-stone);
+}
+
+.tdMessage {
+  max-width: 260px;
+}
+
+.messageText {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.expandBtn {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--color-gold);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity var(--transition);
+}
+
+.expandBtn:hover {
+  opacity: 0.7;
+}
+
+.tdActions {
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.markReadBtn,
+.markUnreadBtn {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+}
+
+.markReadBtn {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.markUnreadBtn {
+  background: var(--color-sand);
+  color: var(--color-stone);
+}
+
+.markReadBtn:hover,
+.markUnreadBtn:hover {
+  opacity: 0.75;
+}
+
+.markReadBtn:disabled,
+.markUnreadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deleteBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 0.5px solid var(--color-error-border);
+  background: none;
+  color: var(--color-error-text);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+}
+
+.deleteBtn:hover {
+  background: var(--color-error-bg);
+}
+
+.rowError {
+  font-size: 11px;
+  color: var(--color-error-text);
+  margin-top: 4px;
+}

@@ -53,7 +53,7 @@ export default function ImageUpload({ value = [], onChange }) {
       <div className={styles.imageList}>
         {value.map((url) => (
           <div key={url} className={styles.imageItem}>
-            <Image src={url} alt="upload" fill className={styles.imageThumb} style={{ objectFit: 'cover' }} />
+            <Image src={url} alt="upload" fill sizes="120px" className={styles.imageThumb} style={{ objectFit: 'cover' }} />
             <button
               type="button"
               className={styles.imageRemove}

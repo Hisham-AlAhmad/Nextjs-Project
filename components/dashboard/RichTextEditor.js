@@ -28,6 +28,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Start w
       Placeholder.configure({ placeholder }),
     ],
     content: value || '',
+    immediatelyRender: false,
     onUpdate({ editor }) {
       onChange(editor.getHTML())
     },

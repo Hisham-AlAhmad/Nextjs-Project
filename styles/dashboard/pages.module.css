@@ -1,0 +1,236 @@
+/* Pages editor specific styles */
+
+.pageHeader {
+  margin-bottom: 28px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--color-ink);
+  margin-bottom: 4px;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--color-stone);
+}
+
+/* ── Page tabs ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+  border-bottom: 0.5px solid var(--color-border-light);
+  padding-bottom: 0;
+}
+
+.tab {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--color-stone);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-bottom: -0.5px;
+}
+
+.tab:hover {
+  color: var(--color-ink);
+}
+
+.tabActive {
+  color: var(--color-gold);
+  border-bottom-color: var(--color-gold);
+  font-weight: 500;
+}
+
+/* ── Section cards ── */
+.sectionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 860px;
+}
+
+.sectionCard {
+  background: #fff;
+  border: 0.5px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--color-border-light);
+  background: var(--color-parchment);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sectionSaved {
+  font-size: 11px;
+  color: var(--color-success-text);
+}
+
+.sectionBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.input,
+.textarea {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background: #fff;
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color var(--transition);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-gold);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── Repeating items (team, services, stats) ── */
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.itemCard {
+  border: 0.5px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  background: var(--color-parchment);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.itemCardNum {
+  font-size: 11px;
+  color: var(--color-stone);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.btnRemoveItem {
+  font-size: 12px;
+  color: var(--color-error-text);
+  background: none;
+  border: 0.5px solid var(--color-error-border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btnRemoveItem:hover {
+  background: var(--color-error-bg);
+}
+
+.addItemBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  background: none;
+  border: 0.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-stone);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.addItemBtn:hover {
+  border-color: var(--color-gold);
+  color: var(--color-ink);
+}
+
+/* ── Save button ── */
+.saveBtn {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.saveBtn:hover {
+  background: var(--color-ink-light);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMsg {
+  padding: 8px 12px;
+  background: var(--color-error-bg);
+  border: 0.5px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  color: var(--color-error-text);
+  font-size: 12px;
+}

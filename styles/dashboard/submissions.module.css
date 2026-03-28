@@ -1,0 +1,75 @@
+.unreadRow td {
+  background: #fffbf3;
+}
+
+.sender {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.email {
+  font-size: 11px;
+  color: var(--color-stone);
+}
+
+.message {
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.btnMarkRead {
+  font-size: 12px;
+  color: var(--color-gold);
+  background: none;
+  border: 0.5px solid var(--color-gold);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btnMarkRead:hover {
+  background: var(--color-sand);
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 0.5px solid var(--color-border-light);
+}
+
+.tab {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--color-stone);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-bottom: -0.5px;
+}
+
+.tab:hover {
+  color: var(--color-ink);
+}
+
+.tabActive {
+  color: var(--color-gold);
+  border-bottom-color: var(--color-gold);
+  font-weight: 500;
+}

@@ -1,59 +1,59 @@
+import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/prisma'
-import { slugify } from '@/lib/richTextUtils'
 
 export async function GET(request, { params }) {
-  const { id } = await params
-  const post = await prisma.blogPost.findUnique({
-    where: { id: Number(id) },
-    include: { author: { select: { id: true, name: true } } },
-  })
-  if (!post) return Response.json({ error: 'Not found' }, { status: 404 })
-  return Response.json(post)
+  try {
+    const { id } = await params
+    const post = await prisma.blogPost.findUnique({
+      where: { id: Number(id) },
+      include: { author: { select: { name: true } } },
+    })
+    if (!post) return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json(post)
+  } catch {
+    return Response.json({ error: 'Failed to fetch post' }, { status: 500 })
+  }
 }
 
 export async function PUT(request, { params }) {
-  const session = await getServerSession(authOptions)
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id } = await params
-  const body = await request.json()
-  const { title, excerpt, content, tags, published } = body
+    const { id } = await params
+    const body = await request.json()
+    const { title, slug, excerpt, content, tags, published } = body
 
-  const existing = await prisma.blogPost.findUnique({ where: { id: Number(id) } })
-  if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
-
-  let slug = existing.slug
-  if (title && title !== existing.title) {
-    const baseSlug = slugify(title)
-    slug = baseSlug
-    let counter = 1
-    while (await prisma.blogPost.findFirst({ where: { slug, NOT: { id: Number(id) } } })) {
-      slug = `${baseSlug}-${counter++}`
-    }
+    const post = await prisma.blogPost.update({
+      where: { id: Number(id) },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(slug !== undefined && { slug }),
+        ...(excerpt !== undefined && { excerpt }),
+        ...(content !== undefined && { content }),
+        ...(tags !== undefined && { tags }),
+        ...(published !== undefined && { published }),
+      },
+    })
+    return Response.json(post)
+  } catch (err) {
+    if (err.code === 'P2025') return Response.json({ error: 'Not found' }, { status: 404 })
+    if (err.code === 'P2002') return Response.json({ error: 'Slug already exists' }, { status: 409 })
+    return Response.json({ error: 'Failed to update post' }, { status: 500 })
   }
-
-  const post = await prisma.blogPost.update({
-    where: { id: Number(id) },
-    data: {
-      title: title ?? existing.title,
-      slug,
-      excerpt: excerpt ?? existing.excerpt,
-      content: content ?? existing.content,
-      tags: tags ?? existing.tags,
-      published: published ?? existing.published,
-    },
-  })
-
-  return Response.json(post)
 }
 
 export async function DELETE(request, { params }) {
-  const session = await getServerSession(authOptions)
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id } = await params
-  await prisma.blogPost.delete({ where: { id: Number(id) } })
-  return Response.json({ success: true })
+    const { id } = await params
+    await prisma.blogPost.delete({ where: { id: Number(id) } })
+    return Response.json({ success: true })
+  } catch (err) {
+    if (err.code === 'P2025') return Response.json({ error: 'Not found' }, { status: 404 })
+    return Response.json({ error: 'Failed to delete post' }, { status: 500 })
+  }
 }

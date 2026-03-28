@@ -1,28 +1,34 @@
 import { notFound } from 'next/navigation'
-import prisma from '@/lib/prisma'
 import ProjectForm from '@/components/dashboard/ProjectForm'
-import styles from '@/styles/dashboard/form.module.css'
 import Link from 'next/link'
+import prisma from '@/lib/prisma'
+import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'Edit Project — Arcline Dashboard' }
 
 export default async function EditProjectPage({ params }) {
   const { id } = await params
-  const project = await prisma.project.findUnique({ where: { id: Number(id) } })
+  let project
+  try {
+    project = await prisma.project.findUnique({ where: { id: Number(id) } })
+  } catch {
+    notFound()
+  }
   if (!project) notFound()
+
+  // Convert BigInt/special values to plain JSON for client component
+  const safeProject = JSON.parse(JSON.stringify(project))
 
   return (
     <div>
       <div className={styles.pageHeader}>
-        <div className={styles.titleRow}>
+        <div>
           <h1 className={styles.title}>Edit Project</h1>
           <p className={styles.sub}>{project.title}</p>
         </div>
-        <Link href="/dashboard/projects" className={styles.btnSecondary}>
-          ← Back to Projects
-        </Link>
+        <Link href="/dashboard/projects" className={styles.backBtn}>← Back</Link>
       </div>
-      <ProjectForm project={project} />
+      <ProjectForm project={safeProject} />
     </div>
   )
 }

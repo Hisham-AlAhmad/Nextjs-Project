@@ -1,30 +1,35 @@
-import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import styles from '@/styles/dashboard/list.module.css'
-import DeleteButton from '@/components/dashboard/DeleteButton'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import prisma from '@/lib/prisma'
+import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'Projects — Arcline Dashboard' }
 
-export default async function ProjectsListPage() {
-  const projects = await prisma.project.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
+export default async function DashboardProjectsPage() {
+  const session = await getServerSession(authOptions)
+
+  let projects = []
+  try {
+    projects = await prisma.project.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, category: true, published: true, createdAt: true },
+    })
+  } catch {}
 
   return (
     <div>
       <div className={styles.pageHeader}>
-        <div className={styles.titleRow}>
+        <div>
           <h1 className={styles.title}>Projects</h1>
-          <p className={styles.sub}>{projects.length} project{projects.length !== 1 ? 's' : ''} total</p>
+          <p className={styles.sub}>{projects.length} total</p>
         </div>
-        <Link href="/dashboard/projects/new" className={styles.btnNew}>
-          + New Project
-        </Link>
+        <Link href="/dashboard/projects/new" className={styles.newBtn}>+ New Project</Link>
       </div>
 
-      <div className={styles.tableCard}>
+      <div className={styles.card}>
         {projects.length === 0 ? (
-          <p className={styles.empty}>No projects yet. Create your first one.</p>
+          <p className={styles.empty}>No projects yet. <Link href="/dashboard/projects/new" className={styles.emptyLink}>Create your first one →</Link></p>
         ) : (
           <table className={styles.table}>
             <thead>
@@ -32,28 +37,23 @@ export default async function ProjectsListPage() {
                 <th>Title</th>
                 <th>Category</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {projects.map(project => (
                 <tr key={project.id}>
-                  <td>{project.title}</td>
+                  <td className={styles.tdTitle}>{project.title}</td>
                   <td>{project.category}</td>
                   <td>
                     <span className={`${styles.badge} ${project.published ? styles.badgePublished : styles.badgeDraft}`}>
                       {project.published ? 'Published' : 'Draft'}
                     </span>
                   </td>
-                  <td>{new Date(project.createdAt).toLocaleDateString()}</td>
+                  <td className={styles.tdMuted}>{new Date(project.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div className={styles.rowActions}>
-                      <Link href={`/dashboard/projects/${project.id}/edit`} className={styles.btnEdit}>
-                        Edit
-                      </Link>
-                      <DeleteButton id={project.id} endpoint="/api/projects" />
-                    </div>
+                    <Link href={`/dashboard/projects/${project.id}/edit`} className={styles.editLink}>Edit</Link>
                   </td>
                 </tr>
               ))}

@@ -1,35 +1,31 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import styles from '@/styles/dashboard/list.module.css'
-import DeleteButton from '@/components/dashboard/DeleteButton'
+import prisma from '@/lib/prisma'
+import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'Blog — Arcline Dashboard' }
 
-export default async function BlogListPage() {
-  await getServerSession(authOptions)
-
-  const posts = await prisma.blogPost.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { author: { select: { name: true } } },
-  })
+export default async function DashboardBlogPage() {
+  let posts = []
+  try {
+    posts = await prisma.blogPost.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, published: true, createdAt: true, author: { select: { name: true } } },
+    })
+  } catch {}
 
   return (
     <div>
       <div className={styles.pageHeader}>
-        <div className={styles.titleRow}>
-          <h1 className={styles.title}>Blog Posts</h1>
-          <p className={styles.sub}>{posts.length} post{posts.length !== 1 ? 's' : ''} total</p>
+        <div>
+          <h1 className={styles.title}>Blog</h1>
+          <p className={styles.sub}>{posts.length} post{posts.length !== 1 ? 's' : ''}</p>
         </div>
-        <Link href="/dashboard/blog/new" className={styles.btnNew}>
-          + New Post
-        </Link>
+        <Link href="/dashboard/blog/new" className={styles.newBtn}>+ New Post</Link>
       </div>
 
-      <div className={styles.tableCard}>
+      <div className={styles.card}>
         {posts.length === 0 ? (
-          <p className={styles.empty}>No blog posts yet. Create your first one.</p>
+          <p className={styles.empty}>No posts yet. <Link href="/dashboard/blog/new" className={styles.emptyLink}>Write your first one →</Link></p>
         ) : (
           <table className={styles.table}>
             <thead>
@@ -37,28 +33,23 @@ export default async function BlogListPage() {
                 <th>Title</th>
                 <th>Author</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {posts.map(post => (
                 <tr key={post.id}>
-                  <td>{post.title}</td>
-                  <td>{post.author.name}</td>
+                  <td className={styles.tdTitle}>{post.title}</td>
+                  <td className={styles.tdMuted}>{post.author?.name || '—'}</td>
                   <td>
                     <span className={`${styles.badge} ${post.published ? styles.badgePublished : styles.badgeDraft}`}>
                       {post.published ? 'Published' : 'Draft'}
                     </span>
                   </td>
-                  <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                  <td className={styles.tdMuted}>{new Date(post.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div className={styles.rowActions}>
-                      <Link href={`/dashboard/blog/${post.id}/edit`} className={styles.btnEdit}>
-                        Edit
-                      </Link>
-                      <DeleteButton id={post.id} endpoint="/api/blog" />
-                    </div>
+                    <Link href={`/dashboard/blog/${post.id}/edit`} className={styles.editLink}>Edit</Link>
                   </td>
                 </tr>
               ))}

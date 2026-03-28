@@ -1,0 +1,190 @@
+.hero {
+  background: var(--color-ink);
+  padding: 80px 0;
+}
+
+.heroInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 400;
+  color: var(--color-parchment);
+  margin-bottom: 12px;
+}
+
+.heroSub {
+  font-size: 15px;
+  color: var(--color-stone);
+}
+
+.body {
+  padding: 80px 0;
+}
+
+.bodyInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 80px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-top: 8px;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-stone);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.infoText {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.infoLink {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-bottom: 0.5px solid currentColor;
+  padding-bottom: 1px;
+  transition: color var(--transition);
+}
+
+.infoLink:hover {
+  color: var(--color-ink);
+}
+
+.formWrap {
+  min-width: 0;
+}
+
+/* Form Styles */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.optional {
+  color: var(--color-stone);
+  font-weight: 400;
+}
+
+.input,
+.select,
+.textarea {
+  padding: 10px 14px;
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-parchment);
+  outline: none;
+  transition: border-color var(--transition);
+  font-family: var(--font-body);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--color-gold);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-text-hint);
+}
+
+.inputError {
+  border-color: var(--color-error-border);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.fieldError {
+  font-size: 11px;
+  color: var(--color-error-text);
+}
+
+.successMsg {
+  font-size: 13px;
+  color: var(--color-success-text);
+  background: var(--color-success-bg);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border: 0.5px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.submit {
+  padding: 13px 32px;
+  background: var(--color-ink);
+  color: var(--color-gold);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background var(--transition);
+  align-self: flex-start;
+}
+
+.submit:hover {
+  background: var(--color-ink-light);
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

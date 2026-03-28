@@ -2,9 +2,12 @@
 const nextConfig = {
   turbopack: {},
   images: {
-    // Allow Next.js Image component to serve files uploaded to /public/uploads/
-    remotePatterns: [],
-    localPatterns: [{ pathname: '/uploads/**' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'uploadthing.com' },
+      { protocol: 'https', hostname: 'utfs.io' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
   },
   webpack: (config) => {
     config.watchOptions = {

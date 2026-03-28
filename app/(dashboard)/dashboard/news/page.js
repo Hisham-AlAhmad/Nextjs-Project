@@ -1,31 +1,31 @@
-import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import styles from '@/styles/dashboard/list.module.css'
-import DeleteButton from '@/components/dashboard/DeleteButton'
+import prisma from '@/lib/prisma'
+import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'News — Arcline Dashboard' }
 
-export default async function NewsListPage() {
-  const posts = await prisma.newsPost.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { author: { select: { name: true } } },
-  })
+export default async function DashboardNewsPage() {
+  let posts = []
+  try {
+    posts = await prisma.newsPost.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, published: true, createdAt: true, author: { select: { name: true } } },
+    })
+  } catch {}
 
   return (
     <div>
       <div className={styles.pageHeader}>
-        <div className={styles.titleRow}>
+        <div>
           <h1 className={styles.title}>News</h1>
-          <p className={styles.sub}>{posts.length} post{posts.length !== 1 ? 's' : ''} total</p>
+          <p className={styles.sub}>{posts.length} post{posts.length !== 1 ? 's' : ''}</p>
         </div>
-        <Link href="/dashboard/news/new" className={styles.btnNew}>
-          + New Post
-        </Link>
+        <Link href="/dashboard/news/new" className={styles.newBtn}>+ New Post</Link>
       </div>
 
-      <div className={styles.tableCard}>
+      <div className={styles.card}>
         {posts.length === 0 ? (
-          <p className={styles.empty}>No news posts yet. Create your first one.</p>
+          <p className={styles.empty}>No news posts yet. <Link href="/dashboard/news/new" className={styles.emptyLink}>Create one →</Link></p>
         ) : (
           <table className={styles.table}>
             <thead>
@@ -33,28 +33,23 @@ export default async function NewsListPage() {
                 <th>Title</th>
                 <th>Author</th>
                 <th>Status</th>
-                <th>Date</th>
+                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {posts.map(post => (
                 <tr key={post.id}>
-                  <td>{post.title}</td>
-                  <td>{post.author.name}</td>
+                  <td className={styles.tdTitle}>{post.title}</td>
+                  <td className={styles.tdMuted}>{post.author?.name || '—'}</td>
                   <td>
                     <span className={`${styles.badge} ${post.published ? styles.badgePublished : styles.badgeDraft}`}>
                       {post.published ? 'Published' : 'Draft'}
                     </span>
                   </td>
-                  <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                  <td className={styles.tdMuted}>{new Date(post.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div className={styles.rowActions}>
-                      <Link href={`/dashboard/news/${post.id}/edit`} className={styles.btnEdit}>
-                        Edit
-                      </Link>
-                      <DeleteButton id={post.id} endpoint="/api/news" />
-                    </div>
+                    <Link href={`/dashboard/news/${post.id}/edit`} className={styles.editLink}>Edit</Link>
                   </td>
                 </tr>
               ))}

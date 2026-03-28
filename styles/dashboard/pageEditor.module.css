@@ -1,0 +1,87 @@
+.block {
+  background: #ffffff;
+  border: 0.5px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blockHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.blockLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+  margin-bottom: 4px;
+}
+
+.blockHint {
+  font-size: 11px;
+  color: var(--color-stone);
+  font-family: monospace;
+}
+
+.editor {
+  width: 100%;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #FAFAF8;
+  color: var(--color-text-primary);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.editor:focus {
+  border-color: var(--color-gold);
+}
+
+.successMsg {
+  font-size: 12px;
+  color: var(--color-success-text);
+  background: var(--color-success-bg);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border: 0.5px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.saveBtn {
+  align-self: flex-start;
+  padding: 8px 20px;
+  background: var(--color-ink);
+  color: var(--color-gold);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.saveBtn:hover {
+  background: var(--color-ink-light);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

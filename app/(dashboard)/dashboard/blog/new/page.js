@@ -1,22 +1,20 @@
-import BlogPostForm from '@/components/dashboard/BlogPostForm'
-import styles from '@/styles/dashboard/form.module.css'
+import BlogForm from '@/components/dashboard/BlogForm'
 import Link from 'next/link'
+import styles from '@/styles/dashboard/crudList.module.css'
 
-export const metadata = { title: 'New Blog Post — Arcline Dashboard' }
+export const metadata = { title: 'New Post — Arcline Dashboard' }
 
 export default function NewBlogPostPage() {
   return (
     <div>
       <div className={styles.pageHeader}>
-        <div className={styles.titleRow}>
+        <div>
           <h1 className={styles.title}>New Blog Post</h1>
-          <p className={styles.sub}>Write and publish a new post</p>
+          <p className={styles.sub}>Write a new journal entry</p>
         </div>
-        <Link href="/dashboard/blog" className={styles.btnSecondary}>
-          ← Back to Blog
-        </Link>
+        <Link href="/dashboard/blog" className={styles.backBtn}>← Back</Link>
       </div>
-      <BlogPostForm />
+      <BlogForm />
     </div>
   )
 }

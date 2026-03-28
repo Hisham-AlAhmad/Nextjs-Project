@@ -1,6 +1,6 @@
-import NewsPostForm from '@/components/dashboard/NewsPostForm'
-import styles from '@/styles/dashboard/form.module.css'
+import NewsForm from '@/components/dashboard/NewsForm'
 import Link from 'next/link'
+import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'New News Post — Arcline Dashboard' }
 
@@ -8,15 +8,13 @@ export default function NewNewsPostPage() {
   return (
     <div>
       <div className={styles.pageHeader}>
-        <div className={styles.titleRow}>
+        <div>
           <h1 className={styles.title}>New News Post</h1>
-          <p className={styles.sub}>Create a press release, award or announcement</p>
+          <p className={styles.sub}>Add a press release or announcement</p>
         </div>
-        <Link href="/dashboard/news" className={styles.btnSecondary}>
-          ← Back to News
-        </Link>
+        <Link href="/dashboard/news" className={styles.backBtn}>← Back</Link>
       </div>
-      <NewsPostForm />
+      <NewsForm />
     </div>
   )
 }

@@ -3,197 +3,140 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
 import styles from '@/styles/dashboard/form.module.css'
-import ImageUpload from '@/components/dashboard/ImageUpload'
 
-const RichTextEditor = dynamic(() => import('@/components/dashboard/RichTextEditor'), { ssr: false })
-
-const CATEGORIES = ['Residential', 'Commercial', 'Hospitality', 'Cultural', 'Office', 'Other']
+const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
 
 export default function ProjectForm({ project }) {
   const router = useRouter()
-  const isEdit = !!project
+  const isEdit = Boolean(project)
 
-  const [title, setTitle] = useState(project?.title ?? '')
-  const [excerpt, setExcerpt] = useState(project?.excerpt ?? '')
-  const [description, setDescription] = useState(project?.description ?? '')
-  const [category, setCategory] = useState(project?.category ?? '')
-  const [images, setImages] = useState(
-    Array.isArray(project?.images) ? project.images : []
-  )
-  // details is stored as key-value pairs: [{key, value}]
-  const [details, setDetails] = useState(() => {
-    const d = project?.details
-    if (d && typeof d === 'object' && !Array.isArray(d)) {
-      return Object.entries(d).map(([key, value]) => ({ key, value }))
-    }
-    return []
+  const [form, setForm] = useState({
+    title: project?.title || '',
+    slug: project?.slug || '',
+    excerpt: project?.excerpt || '',
+    description: project?.description || '',
+    category: project?.category || '',
+    published: project?.published ?? false,
   })
-  const [published, setPublished] = useState(project?.published ?? false)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
-  function addDetail() {
-    setDetails(prev => [...prev, { key: '', value: '' }])
+  function handleChange(e) {
+    const { name, value, type, checked } = e.target
+    setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
   }
 
-  function updateDetail(index, field, val) {
-    setDetails(prev => prev.map((d, i) => i === index ? { ...d, [field]: val } : d))
+  function autoSlug(title) {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   }
 
-  function removeDetail(index) {
-    setDetails(prev => prev.filter((_, i) => i !== index))
+  function handleTitleChange(e) {
+    const title = e.target.value
+    setForm(f => ({ ...f, title, slug: isEdit ? f.slug : autoSlug(title) }))
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    setSuccess('')
-
-    if (!title.trim() || !excerpt.trim() || !description.trim() || !category) {
-      setError('Title, excerpt, description and category are required.')
-      return
-    }
-
-    const detailsObj = {}
-    for (const { key, value } of details) {
-      if (key.trim()) detailsObj[key.trim()] = value.trim()
-    }
-
     setSaving(true)
+
     try {
       const url = isEdit ? `/api/projects/${project.id}` : '/api/projects'
       const method = isEdit ? 'PUT' : 'POST'
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, excerpt, description, category, images, details: detailsObj, published }),
+        body: JSON.stringify(form),
       })
+
       if (!res.ok) {
         const data = await res.json()
-        setError(data.error || 'Something went wrong.')
+        setError(data.error || 'Failed to save')
         return
       }
-      setSuccess(isEdit ? 'Project updated.' : 'Project created.')
-      if (!isEdit) {
-        router.push('/dashboard/projects')
-      }
+
+      router.push('/dashboard/projects')
+      router.refresh()
+    } catch {
+      setError('Network error. Please try again.')
     } finally {
       setSaving(false)
     }
   }
 
+  async function handleDelete() {
+    if (!confirm('Delete this project? This cannot be undone.')) return
+    setDeleting(true)
+
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        setError('Failed to delete')
+        return
+      }
+      router.push('/dashboard/projects')
+      router.refresh()
+    } catch {
+      setError('Network error')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      {error && <p className={styles.errorMsg}>{error}</p>}
-      {success && <p className={styles.successMsg}>{success}</p>}
-
-      <div className={styles.row}>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.grid2}>
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="title">Title</label>
-          <input
-            id="title"
-            className={styles.input}
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="Project title"
-            required
-          />
+          <label className={styles.label}>Title *</label>
+          <input name="title" value={form.title} onChange={handleTitleChange} className={styles.input} required placeholder="Villa Nour" />
         </div>
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="category">Category</label>
-          <select
-            id="category"
-            className={styles.select}
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-            required
-          >
-            <option value="">Select a category…</option>
-            {CATEGORIES.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          <label className={styles.label}>Slug *</label>
+          <input name="slug" value={form.slug} onChange={handleChange} className={styles.input} required placeholder="villa-nour" />
         </div>
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="excerpt">Excerpt</label>
-        <textarea
-          id="excerpt"
-          className={styles.textarea}
-          value={excerpt}
-          onChange={e => setExcerpt(e.target.value)}
-          placeholder="Short preview shown on the projects listing page"
-          rows={3}
-          required
-        />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Description</label>
-        <RichTextEditor value={description} onChange={setDescription} />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Images</label>
-        <ImageUpload value={images} onChange={setImages} />
-      </div>
-
-      <div className={styles.field}>
-        <label className={styles.label}>Project Details</label>
-        <p className={styles.tagsHint}>
-          Key specs shown on the project page — e.g. Location, Area, Year
-        </p>
-        <div className={styles.detailsGrid}>
-          {details.map((d, i) => (
-            <div key={i} className={styles.detailRow}>
-              <input
-                className={styles.input}
-                placeholder="Key (e.g. Location)"
-                value={d.key}
-                onChange={e => updateDetail(i, 'key', e.target.value)}
-              />
-              <input
-                className={styles.input}
-                placeholder="Value (e.g. Beirut)"
-                value={d.value}
-                onChange={e => updateDetail(i, 'value', e.target.value)}
-              />
-              <button type="button" className={styles.detailRemove} onClick={() => removeDetail(i)}>
-                ×
-              </button>
-            </div>
-          ))}
-          <button type="button" className={styles.addBtn} onClick={addDetail}>
-            + Add detail
-          </button>
+      <div className={styles.grid2}>
+        <div className={styles.field}>
+          <label className={styles.label}>Category *</label>
+          <input name="category" value={form.category} onChange={handleChange} className={styles.input} required placeholder="Residential" />
         </div>
-      </div>
-
-      <div className={styles.field}>
-        <div className={styles.toggleRow}>
-          <input
-            type="checkbox"
-            id="published"
-            checked={published}
-            onChange={e => setPublished(e.target.checked)}
-          />
-          <label className={styles.toggleLabel} htmlFor="published">
-            Published (visible on the website)
+        <div className={styles.fieldCheck}>
+          <label className={styles.checkLabel}>
+            <input name="published" type="checkbox" checked={form.published} onChange={handleChange} className={styles.checkbox} />
+            Published
           </label>
         </div>
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label}>Excerpt *</label>
+        <textarea name="excerpt" value={form.excerpt} onChange={handleChange} className={styles.textarea} rows={2} required placeholder="Short description for listing cards..." />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>Description *</label>
+        <RichTextEditor
+          value={form.description}
+          onChange={html => setForm(f => ({ ...f, description: html }))}
+          placeholder="Describe this project…"
+        />
+      </div>
+
+      {error && <p className={styles.error}>{error}</p>}
+
       <div className={styles.actions}>
-        <button type="submit" className={styles.btnPrimary} disabled={saving}>
-          {saving ? 'Saving…' : isEdit ? 'Update Project' : 'Create Project'}
+        <button type="submit" className={styles.saveBtn} disabled={saving}>
+          {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Project'}
         </button>
-        <Link href="/dashboard/projects" className={styles.btnSecondary}>
-          Cancel
-        </Link>
+        {isEdit && (
+          <button type="button" onClick={handleDelete} className={styles.deleteBtn} disabled={deleting}>
+            {deleting ? 'Deleting...' : 'Delete'}
+          </button>
+        )}
       </div>
     </form>
   )

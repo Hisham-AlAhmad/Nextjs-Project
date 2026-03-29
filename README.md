@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🎨 Arcline Design Agency – CMS Dashboard
 
-## Getting Started
+A modern, full-featured content management system for a design agency built with **Next.js**, **React**, **Prisma ORM**, and **MySQL**. Manage projects, blog posts, news, team members, and page content with an intuitive dashboard.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+- **📊 Admin Dashboard** – Manage all content with a clean, responsive interface
+- **🖼️ Project Portfolio** – Showcase projects with images, descriptions, and categorization
+- **📝 Blog & News** – Create and publish articles with a rich text editor (TipTap)
+- **👥 Team Management** – Edit team members with images and roles
+- **📄 Dynamic Pages** – Edit homepage, about page, and services page content without code
+
+- **🔐 Authentication** – Secure admin login with role-based access control
+- **🎨 Rich Text Editor** – TipTap-based editor with formatting, links, and image insertion
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** 18.17+
+- **MySQL 8.0+**
+- **npm** or **yarn** (comes with Node.js)
+
+### 1️⃣ Clone & Install Dependencies
+
+```bash
+# Clone the repository
+git clone git@github.com:Hisham-AlAhmad/Nextjs-Project.git
+cd NextjsProject
+
+# Install dependencies
+npm install
+```
+
+### 2️⃣ Set Up Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# Database Connection (MySQL)
+DATABASE_URL="mysql://username:password@localhost:3306/arcline_db"
+
+# NextAuth Configuration
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key-here-change-this-in-production"
+```
+
+### 3️⃣ Set Up Database & Run Seed
+
+```bash
+# Create database tables
+npx prisma migrate deploy
+
+# Populate with sample data (projects, blog posts, team, etc.)
+npm run seed
+```
+
+This will create:
+
+- Admin user: `admin@arcline.com` / `admin123`
+- 4 sample projects (residential, commercial, hospitality)
+- 3 blog posts and 3 news articles
+- Team member profiles with images
+- Homepage, about page, and services page content
+
+### 4️⃣ Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📖 Usage Guide
 
-## Learn More
+### 🔓 Admin Dashboard Access
 
-To learn more about Next.js, take a look at the following resources:
+1. Navigate to [http://localhost:3000/dashboard/login](http://localhost:3000/dashboard/login)
+2. Log in with:
+   - **Email:** `admin@arcline.com`
+   - **Password:** `admin123`
+3. You'll be redirected to the dashboard at `/dashboard`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📊 Dashboard Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Dashboard Home** (`/dashboard`)
 
-## Deploy on Vercel
+- View overview statistics
+- Quick access to all management sections
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Projects** (`/dashboard/projects`)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Create, edit, and delete portfolio projects
+- Upload project images
+- Manage project categories and details
+- Publish/unpublish projects
+
+**Blog** (`/dashboard/blog`)
+
+- Write articles with rich text editor
+- Add images and formatting
+- Manage tags and publication status
+- View all published and draft posts
+
+**News** (`/dashboard/news`)
+
+- Publish company news and press releases
+- Same rich text editor as blog
+
+**Pages** (`/dashboard/pages`)
+
+- Edit homepage sections (hero, stats)
+- Update about page (mission, team members)
+- Manage services list
+
+**Users** (`/dashboard/users`)
+
+- Create additional admin or editor accounts
+- Set role permissions
+
+**Submissions** (`/dashboard/submissions`)
+
+- View contact form submissions
+- Manage inquiry messages from project pages
+- Mark as read/unread
+
+---
+
+## 🛠️ Available Commands
+
+```bash
+# Development
+npm run dev              # Start dev server on port 3000
+
+# Database
+npm run seed            # Populate database with sample data
+npx prisma studio      # Open interactive database explorer
+```

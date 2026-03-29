@@ -2,12 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
+import { toPlainText } from '@/lib/richTextUtils'
 import { ConfirmDelete } from './ConfirmDelete'
 import { ImageUploadButton } from './ImageUploadButton'
 import styles from '@/styles/dashboard/form.module.css'
-
-const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
 
 export default function ProjectForm({ project }) {
   const router = useRouter()
@@ -17,7 +15,7 @@ export default function ProjectForm({ project }) {
     title: project?.title || '',
     slug: project?.slug || '',
     excerpt: project?.excerpt || '',
-    description: project?.description || '',
+    description: toPlainText(project?.description || ''),
     category: project?.category || '',
     images: Array.isArray(project?.images) ? project.images.filter(Boolean) : [],
     published: project?.published ?? false,
@@ -54,7 +52,7 @@ export default function ProjectForm({ project }) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, description: toPlainText(form.description) }),
       })
 
       if (!res.ok) {
@@ -141,10 +139,14 @@ export default function ProjectForm({ project }) {
 
       <div className={styles.field}>
         <label className={styles.label}>Description *</label>
-        <RichTextEditor
+        <textarea
+          name="description"
           value={form.description}
-          onChange={html => setForm(f => ({ ...f, description: html }))}
-          placeholder="Describe this project…"
+          onChange={handleChange}
+          className={styles.textarea}
+          rows={10}
+          required
+          placeholder="Describe this project..."
         />
       </div>
 

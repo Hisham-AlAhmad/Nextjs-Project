@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { toPlainText } from '@/lib/richTextUtils'
 
 export async function GET(request, { params }) {
   try {
@@ -25,11 +26,11 @@ export async function PUT(request, { params }) {
     const project = await prisma.project.update({
       where: { id: Number(id) },
       data: {
-        ...(title !== undefined && { title }),
-        ...(slug !== undefined && { slug }),
-        ...(excerpt !== undefined && { excerpt }),
-        ...(description !== undefined && { description }),
-        ...(category !== undefined && { category }),
+        ...(title !== undefined && { title: toPlainText(title) }),
+        ...(slug !== undefined && { slug: toPlainText(slug) }),
+        ...(excerpt !== undefined && { excerpt: toPlainText(excerpt) }),
+        ...(description !== undefined && { description: toPlainText(description) }),
+        ...(category !== undefined && { category: toPlainText(category) }),
         ...(images !== undefined && { images }),
         ...(details !== undefined && { details }),
         ...(published !== undefined && { published }),

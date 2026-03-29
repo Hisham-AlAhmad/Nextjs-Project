@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { toPlainText } from '@/lib/richTextUtils'
 
 export async function GET(request, { params }) {
   try {
@@ -28,10 +29,10 @@ export async function PUT(request, { params }) {
     const post = await prisma.blogPost.update({
       where: { id: Number(id) },
       data: {
-        ...(title !== undefined && { title }),
-        ...(slug !== undefined && { slug }),
-        ...(excerpt !== undefined && { excerpt }),
-        ...(content !== undefined && { content }),
+        ...(title !== undefined && { title: toPlainText(title) }),
+        ...(slug !== undefined && { slug: toPlainText(slug) }),
+        ...(excerpt !== undefined && { excerpt: toPlainText(excerpt) }),
+        ...(content !== undefined && { content: toPlainText(content) }),
         ...(tags !== undefined && { tags }),
         ...(published !== undefined && { published }),
       },

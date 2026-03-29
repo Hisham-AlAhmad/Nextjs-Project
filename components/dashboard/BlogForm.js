@@ -2,12 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
-import { hasRichTextContent } from '@/lib/richTextUtils'
+import { hasTextContent, toPlainText } from '@/lib/richTextUtils'
 import { ConfirmDelete } from './ConfirmDelete'
 import styles from '@/styles/dashboard/form.module.css'
-
-const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
 
 export default function BlogForm({ post }) {
   const router = useRouter()
@@ -17,7 +14,7 @@ export default function BlogForm({ post }) {
     title: post?.title || '',
     slug: post?.slug || '',
     excerpt: post?.excerpt || '',
-    content: post?.content || '',
+    content: toPlainText(post?.content || ''),
     tags: Array.isArray(post?.tags) ? post.tags.join(', ') : '',
     published: post?.published ?? false,
   })
@@ -44,13 +41,13 @@ export default function BlogForm({ post }) {
     e.preventDefault()
     setError('')
 
-    // Validate rich text content (TipTap outputs '<p></p>' for empty)
-    if (!hasRichTextContent(form.content)) { setError('Content is required'); return }
+    if (!hasTextContent(form.content)) { setError('Content is required'); return }
 
     setSaving(true)
 
     const payload = {
       ...form,
+      content: toPlainText(form.content),
       tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
     }
 
@@ -128,10 +125,14 @@ export default function BlogForm({ post }) {
 
       <div className={styles.field}>
         <label className={styles.label}>Content *</label>
-        <RichTextEditor
+        <textarea
+          name="content"
           value={form.content}
-          onChange={html => setForm(f => ({ ...f, content: html }))}
-          placeholder="Write your post…"
+          onChange={handleChange}
+          className={styles.textarea}
+          rows={10}
+          required
+          placeholder="Write your post..."
         />
       </div>
 

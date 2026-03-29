@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import PublicLayout from '@/components/public/PublicLayout'
 import Link from 'next/link'
 import prisma from '@/lib/prisma'
+import { toPlainText } from '@/lib/richTextUtils'
 import styles from '@/styles/public/blogDetail.module.css'
 
 export async function generateMetadata({ params }) {
@@ -29,6 +30,7 @@ export default async function BlogPostPage({ params }) {
   if (!post) notFound()
 
   const tags = Array.isArray(post.tags) ? post.tags : []
+  const contentText = toPlainText(post.content)
 
   return (
     <PublicLayout>
@@ -51,10 +53,9 @@ export default async function BlogPostPage({ params }) {
 
         <div className={styles.body}>
           <div className={styles.bodyInner}>
-            <div
-              className={styles.content}
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+            <div className={styles.content} style={{ whiteSpace: 'pre-line' }}>
+              {contentText}
+            </div>
             <Link href="/blog" className={styles.back}>← Back to Journal</Link>
           </div>
         </div>

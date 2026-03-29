@@ -2,12 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
-import { hasRichTextContent } from '@/lib/richTextUtils'
+import { hasTextContent, toPlainText } from '@/lib/richTextUtils'
 import { ConfirmDelete } from './ConfirmDelete'
 import styles from '@/styles/dashboard/form.module.css'
-
-const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
 
 export default function NewsForm({ post }) {
   const router = useRouter()
@@ -17,7 +14,7 @@ export default function NewsForm({ post }) {
     title: post?.title || '',
     slug: post?.slug || '',
     excerpt: post?.excerpt || '',
-    content: post?.content || '',
+    content: toPlainText(post?.content || ''),
     published: post?.published ?? false,
   })
   const [error, setError] = useState('')
@@ -43,7 +40,7 @@ export default function NewsForm({ post }) {
     e.preventDefault()
     setError('')
 
-    if (!hasRichTextContent(form.content)) { setError('Content is required'); return }
+    if (!hasTextContent(form.content)) { setError('Content is required'); return }
 
     setSaving(true)
 
@@ -54,7 +51,7 @@ export default function NewsForm({ post }) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, content: toPlainText(form.content) }),
       })
 
       if (!res.ok) {
@@ -115,10 +112,14 @@ export default function NewsForm({ post }) {
 
       <div className={styles.field}>
         <label className={styles.label}>Content *</label>
-        <RichTextEditor
+        <textarea
+          name="content"
           value={form.content}
-          onChange={html => setForm(f => ({ ...f, content: html }))}
-          placeholder="Write your news post…"
+          onChange={handleChange}
+          className={styles.textarea}
+          rows={10}
+          required
+          placeholder="Write your news post..."
         />
       </div>
 

@@ -4,6 +4,7 @@ import ProjectInquiryForm from '@/components/public/ProjectInquiryForm'
 import Link from 'next/link'
 import Image from 'next/image'
 import prisma from '@/lib/prisma'
+import { toPlainText } from '@/lib/richTextUtils'
 import styles from '@/styles/public/projectDetail.module.css'
 
 export async function generateMetadata({ params }) {
@@ -31,6 +32,7 @@ export default async function ProjectDetailPage({ params }) {
 
   const images = Array.isArray(project.images) ? project.images : []
   const details = project.details && typeof project.details === 'object' ? project.details : {}
+  const descriptionText = toPlainText(project.description)
 
   return (
     <PublicLayout>
@@ -53,10 +55,9 @@ export default async function ProjectDetailPage({ params }) {
         {/* Main Content */}
         <div className={styles.main}>
           <p className={styles.excerpt}>{project.excerpt}</p>
-          <div
-            className={styles.content}
-            dangerouslySetInnerHTML={{ __html: project.description }}
-          />
+          <div className={styles.content} style={{ whiteSpace: 'pre-line' }}>
+            {descriptionText}
+          </div>
 
           {/* Image Gallery */}
           {images.length > 1 && (

@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { hasTextContent, toPlainText } from '@/lib/richTextUtils'
 
 export async function GET() {
   try {
@@ -22,17 +23,23 @@ export async function POST(request) {
     const body = await request.json()
     const { title, slug, excerpt, description, category, images, details, published } = body
 
-    if (!title || !slug || !excerpt || !description || !category) {
+    const safeTitle = toPlainText(title)
+    const safeSlug = toPlainText(slug)
+    const safeExcerpt = toPlainText(excerpt)
+    const safeDescription = toPlainText(description)
+    const safeCategory = toPlainText(category)
+
+    if (!hasTextContent(safeTitle) || !hasTextContent(safeSlug) || !hasTextContent(safeExcerpt) || !hasTextContent(safeDescription) || !hasTextContent(safeCategory)) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     const project = await prisma.project.create({
       data: {
-        title,
-        slug,
-        excerpt,
-        description,
-        category,
+        title: safeTitle,
+        slug: safeSlug,
+        excerpt: safeExcerpt,
+        description: safeDescription,
+        category: safeCategory,
         images: images || [],
         details: details || {},
         published: published ?? false,

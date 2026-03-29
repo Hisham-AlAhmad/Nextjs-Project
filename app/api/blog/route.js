@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { hasTextContent, toPlainText } from '@/lib/richTextUtils'
 
 export async function GET() {
   try {
@@ -23,16 +24,21 @@ export async function POST(request) {
     const body = await request.json()
     const { title, slug, excerpt, content, tags, published } = body
 
-    if (!title || !slug || !excerpt || !content) {
+    const safeTitle = toPlainText(title)
+    const safeSlug = toPlainText(slug)
+    const safeExcerpt = toPlainText(excerpt)
+    const safeContent = toPlainText(content)
+
+    if (!hasTextContent(safeTitle) || !hasTextContent(safeSlug) || !hasTextContent(safeExcerpt) || !hasTextContent(safeContent)) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     const post = await prisma.blogPost.create({
       data: {
-        title,
-        slug,
-        excerpt,
-        content,
+        title: safeTitle,
+        slug: safeSlug,
+        excerpt: safeExcerpt,
+        content: safeContent,
         tags: tags || [],
         published: published ?? false,
         authorId: session.user.id,

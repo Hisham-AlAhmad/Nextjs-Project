@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { hasRichTextContent } from '@/lib/richTextUtils'
+import { ConfirmDelete } from './ConfirmDelete'
 import styles from '@/styles/dashboard/form.module.css'
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
@@ -23,6 +24,7 @@ export default function BlogForm({ post }) {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target
@@ -78,7 +80,6 @@ export default function BlogForm({ post }) {
   }
 
   async function handleDelete() {
-    if (!confirm('Delete this post? This cannot be undone.')) return
     setDeleting(true)
 
     try {
@@ -90,6 +91,7 @@ export default function BlogForm({ post }) {
       setError('Network error')
     } finally {
       setDeleting(false)
+      setShowDeleteModal(false)
     }
   }
 
@@ -140,11 +142,21 @@ export default function BlogForm({ post }) {
           {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Post'}
         </button>
         {isEdit && (
-          <button type="button" onClick={handleDelete} className={styles.deleteBtn} disabled={deleting}>
-            {deleting ? 'Deleting...' : 'Delete'}
+          <button type="button" onClick={() => setShowDeleteModal(true)} className={styles.deleteBtn} disabled={deleting}>
+            Delete
           </button>
         )}
       </div>
+
+      <ConfirmDelete
+        isOpen={showDeleteModal}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete Post"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={deleting}
+      />
     </form>
   )
 }

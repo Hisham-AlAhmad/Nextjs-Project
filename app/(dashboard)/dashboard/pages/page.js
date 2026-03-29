@@ -1,15 +1,19 @@
 import prisma from '@/lib/prisma'
-import PageEditor from '@/components/dashboard/PageEditor'
+import HeroSectionEditor from '@/components/dashboard/HeroSectionEditor'
+import StatsSectionEditor from '@/components/dashboard/StatsSectionEditor'
+import MissionSectionEditor from '@/components/dashboard/MissionSectionEditor'
+import TeamSectionEditor from '@/components/dashboard/TeamSectionEditor'
+import ServicesListEditor from '@/components/dashboard/ServicesListEditor'
 import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'Pages — Arcline Dashboard' }
 
 const SECTIONS = [
-  { page: 'home', section: 'hero', label: 'Home — Hero', hint: 'JSON: { heading, subheading, ctaText }' },
-  { page: 'home', section: 'stats', label: 'Home — Stats', hint: 'JSON: { projects, years, awards, countries }' },
-  { page: 'about', section: 'mission', label: 'About — Mission', hint: 'JSON: { heading, text }' },
-  { page: 'about', section: 'team', label: 'About — Team', hint: 'JSON array: [{ name, role, image }]' },
-  { page: 'services', section: 'list', label: 'Services — List', hint: 'JSON array: [{ title, description, icon }]' },
+  { page: 'home', section: 'hero', label: 'Home — Hero', hint: 'Main hero section with heading, subheading, and CTA', component: HeroSectionEditor },
+  { page: 'home', section: 'stats', label: 'Home — Stats', hint: 'Display key statistics: projects, years, awards, countries', component: StatsSectionEditor },
+  { page: 'about', section: 'mission', label: 'About — Mission', hint: 'Company mission statement and values', component: MissionSectionEditor },
+  { page: 'about', section: 'team', label: 'About — Team', hint: 'List of team members with roles and photos', component: TeamSectionEditor },
+  { page: 'services', section: 'list', label: 'Services — List', hint: 'List of services offered by the company', component: ServicesListEditor },
 ]
 
 export default async function PagesPage() {
@@ -33,8 +37,9 @@ export default async function PagesPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '960px' }}>
         {SECTIONS.map(s => {
           const existing = contentMap[`${s.page}_${s.section}`]
+          const EditorComponent = s.component
           return (
-            <PageEditor
+            <EditorComponent
               key={`${s.page}_${s.section}`}
               page={s.page}
               section={s.section}
@@ -48,3 +53,4 @@ export default async function PagesPage() {
     </div>
   )
 }
+

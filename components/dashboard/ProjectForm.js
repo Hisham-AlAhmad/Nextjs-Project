@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { ConfirmDelete } from './ConfirmDelete'
+import { ImageUploadButton } from './ImageUploadButton'
 import styles from '@/styles/dashboard/form.module.css'
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
@@ -17,11 +19,14 @@ export default function ProjectForm({ project }) {
     excerpt: project?.excerpt || '',
     description: project?.description || '',
     category: project?.category || '',
+    images: Array.isArray(project?.images) ? project.images.filter(Boolean) : [],
     published: project?.published ?? false,
   })
+  const [imageUrlInput, setImageUrlInput] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target
@@ -68,7 +73,6 @@ export default function ProjectForm({ project }) {
   }
 
   async function handleDelete() {
-    if (!confirm('Delete this project? This cannot be undone.')) return
     setDeleting(true)
 
     try {
@@ -83,7 +87,25 @@ export default function ProjectForm({ project }) {
       setError('Network error')
     } finally {
       setDeleting(false)
+      setShowDeleteModal(false)
     }
+  }
+
+  function addImage(url) {
+    const trimmed = (url || '').trim()
+    if (!trimmed) return
+    setForm(f => {
+      if (f.images.includes(trimmed)) return f
+      return { ...f, images: [...f.images, trimmed] }
+    })
+    setImageUrlInput('')
+  }
+
+  function removeImage(index) {
+    setForm(f => ({
+      ...f,
+      images: f.images.filter((_, i) => i !== index),
+    }))
   }
 
   return (
@@ -126,6 +148,45 @@ export default function ProjectForm({ project }) {
         />
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label}>Project Images</label>
+        <p className={styles.helperText}>Upload files directly or add an external image URL. First image is used as the cover.</p>
+
+        <ImageUploadButton onImageUrl={addImage} loading={saving} />
+
+        <div className={styles.inlineRow}>
+          <input
+            value={imageUrlInput}
+            onChange={e => setImageUrlInput(e.target.value)}
+            className={styles.input}
+            placeholder="https://example.com/image.jpg"
+          />
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => addImage(imageUrlInput)}
+          >
+            Add URL
+          </button>
+        </div>
+
+        {form.images.length > 0 && (
+          <div className={styles.imageGrid}>
+            {form.images.map((url, index) => (
+              <div className={styles.imageItem} key={`${url}-${index}`}>
+                <img src={url} alt={`Project image ${index + 1}`} className={styles.imagePreview} />
+                <div className={styles.imageMeta}>
+                  <span className={styles.imageLabel}>{index === 0 ? 'Cover' : `Image ${index + 1}`}</span>
+                  <button type="button" className={styles.removeImageBtn} onClick={() => removeImage(index)}>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.actions}>
@@ -133,11 +194,21 @@ export default function ProjectForm({ project }) {
           {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Project'}
         </button>
         {isEdit && (
-          <button type="button" onClick={handleDelete} className={styles.deleteBtn} disabled={deleting}>
-            {deleting ? 'Deleting...' : 'Delete'}
+          <button type="button" onClick={() => setShowDeleteModal(true)} className={styles.deleteBtn} disabled={deleting}>
+            Delete
           </button>
         )}
       </div>
+
+      <ConfirmDelete
+        isOpen={showDeleteModal}
+        title="Delete Project"
+        message="Are you sure you want to delete this project? This action cannot be undone."
+        confirmText="Delete Project"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={deleting}
+      />
     </form>
   )
 }

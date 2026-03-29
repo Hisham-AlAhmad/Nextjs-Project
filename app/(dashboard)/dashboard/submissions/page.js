@@ -45,7 +45,7 @@ export default async function SubmissionsPage() {
         include: { project: { select: { title: true, slug: true } } },
       }),
     ])
-  } catch {}
+  } catch { }
 
   const unreadContacts = contacts.filter(c => !c.read).length
   const unreadInquiries = inquiries.filter(i => !i.read).length
@@ -79,6 +79,7 @@ export default async function SubmissionsPage() {
                   <th>Email</th>
                   <th>Type</th>
                   <th>Date</th>
+                  <th>Status</th>
                   <th>Message</th>
                   <th>Actions</th>
                 </tr>
@@ -120,6 +121,7 @@ export default async function SubmissionsPage() {
                   <th>Email</th>
                   <th>Project</th>
                   <th>Date</th>
+                  <th>Status</th>
                   <th>Message</th>
                   <th>Actions</th>
                 </tr>

@@ -29,7 +29,7 @@ export default async function AboutPage() {
   }
 
   const team = Array.isArray(teamContent?.content) ? teamContent.content : [
-    { name: 'Sara Al-Rashid', role: 'Founder & Principal Architect', image: '' },
+    { name: 'Mohamad Ali', role: 'Founder & Principal Architect', image: '' },
     { name: 'Omar Nasser', role: 'Lead Designer', image: '' },
     { name: 'Lara Khouri', role: 'Interior Architecture', image: '' },
     { name: 'Karim Haddad', role: 'Project Manager', image: '' },

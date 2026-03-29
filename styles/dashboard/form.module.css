@@ -21,6 +21,11 @@
   gap: 6px;
 }
 
+.helperText {
+  font-size: 11px;
+  color: var(--color-stone);
+}
+
 .fieldCheck {
   display: flex;
   align-items: center;
@@ -39,7 +44,9 @@
   font-weight: 400;
 }
 
-.input, .textarea, .select {
+.input,
+.textarea,
+.select {
   padding: 9px 12px;
   border: 0.5px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -51,11 +58,14 @@
   font-family: var(--font-body);
 }
 
-.input:focus, .textarea:focus, .select:focus {
+.input:focus,
+.textarea:focus,
+.select:focus {
   border-color: var(--color-gold);
 }
 
-.input::placeholder, .textarea::placeholder {
+.input::placeholder,
+.textarea::placeholder {
   color: var(--color-text-hint);
 }
 
@@ -94,6 +104,69 @@
   display: flex;
   gap: 12px;
   padding-top: 4px;
+}
+
+.inlineRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.secondaryBtn {
+  height: 36px;
+  padding: 0 14px;
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.secondaryBtn:hover {
+  border-color: var(--color-gold);
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.imageItem {
+  border: 0.5px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: #fff;
+  overflow: hidden;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.imageMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+}
+
+.imageLabel {
+  font-size: 11px;
+  color: var(--color-stone);
+}
+
+.removeImageBtn {
+  border: none;
+  background: transparent;
+  color: var(--color-error-text);
+  font-size: 11px;
+  cursor: pointer;
 }
 
 .saveBtn {
@@ -136,4 +209,14 @@
 .deleteBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .inlineRow {
+    grid-template-columns: 1fr;
+  }
 }

@@ -38,12 +38,12 @@ export default function ProjectInquiryForm({ projectId }) {
     <form onSubmit={handleSubmit(onSubmit)} className={styles.inquiryForm} noValidate>
       <div className={styles.field}>
         <label className={styles.label}>Your Name</label>
-        <input {...register('name')} className={`${styles.input} ${errors.name ? styles.inputError : ''}`} placeholder="Sara Al-Rashid" />
+        <input {...register('name')} className={`${styles.input} ${errors.name ? styles.inputError : ''}`} placeholder="Mohamad Ali" />
         {errors.name && <span className={styles.fieldError}>{errors.name.message}</span>}
       </div>
       <div className={styles.field}>
         <label className={styles.label}>Email Address</label>
-        <input {...register('email')} type="email" className={`${styles.input} ${errors.email ? styles.inputError : ''}`} placeholder="sara@example.com" />
+        <input {...register('email')} type="email" className={`${styles.input} ${errors.email ? styles.inputError : ''}`} placeholder="mohamad@example.com" />
         {errors.email && <span className={styles.fieldError}>{errors.email.message}</span>}
       </div>
       <div className={styles.field}>

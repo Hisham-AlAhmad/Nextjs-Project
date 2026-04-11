@@ -5,7 +5,19 @@ import styles from '@/styles/dashboard/form.module.css'
 import editorStyles from '@/styles/dashboard/pageEditor.module.css'
 
 export default function HeroSectionEditor({ page, section, label, hint, initialContent }) {
-  const initial = initialContent ? JSON.parse(initialContent) : { heading: '', subheading: '', ctaText: '' }
+  const initial = initialContent
+    ? JSON.parse(initialContent)
+    : {
+      badge: '',
+      heading: '',
+      subheading: '',
+      ctaText: '',
+      ctaSecondaryText: '',
+      highlightOne: '',
+      highlightTwo: '',
+      imagePrimary: '',
+      imageSecondary: '',
+    }
 
   const [form, setForm] = useState(initial)
   const [saving, setSaving] = useState(false)
@@ -48,6 +60,18 @@ export default function HeroSectionEditor({ page, section, label, hint, initialC
       </div>
 
       <div className={styles.field}>
+        <label className={styles.label}>Eyebrow Badge</label>
+        <input
+          type="text"
+          name="badge"
+          value={form.badge || ''}
+          onChange={handleChange}
+          className={styles.input}
+          placeholder="Award-winning architecture studio"
+        />
+      </div>
+
+      <div className={styles.field}>
         <label className={styles.label}>Heading</label>
         <input
           type="text"
@@ -81,6 +105,67 @@ export default function HeroSectionEditor({ page, section, label, hint, initialC
           className={styles.input}
           placeholder="e.g., Start Your Project"
         />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>Secondary CTA Text</label>
+        <input
+          type="text"
+          name="ctaSecondaryText"
+          value={form.ctaSecondaryText || ''}
+          onChange={handleChange}
+          className={styles.input}
+          placeholder="e.g., Explore Journal"
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>Highlight Pill 1</label>
+        <input
+          type="text"
+          name="highlightOne"
+          value={form.highlightOne || ''}
+          onChange={handleChange}
+          className={styles.input}
+          placeholder="Concept to Completion"
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>Highlight Pill 2</label>
+        <input
+          type="text"
+          name="highlightTwo"
+          value={form.highlightTwo || ''}
+          onChange={handleChange}
+          className={styles.input}
+          placeholder="Interior + Architecture"
+        />
+      </div>
+
+      <div className={styles.grid2}>
+        <div className={styles.field}>
+          <label className={styles.label}>Primary Hero Image URL</label>
+          <input
+            type="text"
+            name="imagePrimary"
+            value={form.imagePrimary || ''}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="https://..."
+          />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label}>Secondary Hero Image URL</label>
+          <input
+            type="text"
+            name="imageSecondary"
+            value={form.imageSecondary || ''}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="https://..."
+          />
+        </div>
       </div>
 
       <div className={editorStyles.previewBlock}>

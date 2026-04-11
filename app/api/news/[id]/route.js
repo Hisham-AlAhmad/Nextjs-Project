@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { toPlainText } from '@/lib/richTextUtils'
+import { hasPermission } from '@/lib/permissions'
 
 export async function GET(request, { params }) {
   try {
@@ -21,10 +22,11 @@ export async function PUT(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!hasPermission(session.user, 'news', 'edit')) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
     const { id } = await params
     const body = await request.json()
-    const { title, slug, excerpt, content, published } = body
+    const { title, slug, excerpt, content, published, coverImage } = body
 
     const post = await prisma.newsPost.update({
       where: { id: Number(id) },
@@ -33,6 +35,7 @@ export async function PUT(request, { params }) {
         ...(slug !== undefined && { slug: toPlainText(slug) }),
         ...(excerpt !== undefined && { excerpt: toPlainText(excerpt) }),
         ...(content !== undefined && { content: toPlainText(content) }),
+        ...(coverImage !== undefined && { coverImage: coverImage ? toPlainText(coverImage) : null }),
         ...(published !== undefined && { published }),
       },
     })
@@ -48,6 +51,7 @@ export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!hasPermission(session.user, 'news', 'delete')) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
     const { id } = await params
     await prisma.newsPost.delete({ where: { id: Number(id) } })

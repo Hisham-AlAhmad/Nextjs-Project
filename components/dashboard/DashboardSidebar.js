@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from '@/styles/dashboard/layout.module.css'
+import { canAccessSection, normalizePermissions } from '@/lib/permissions'
 
 // Each nav item has a required permission
 // ADMIN sees everything, EDITOR only sees what's in their permissions[]
@@ -14,17 +15,18 @@ const navItems = [
     { label: 'Pages', href: '/dashboard/pages', permission: 'pages' },
     { label: 'Submissions', href: '/dashboard/submissions', permission: 'submissions' },
     { label: 'Users', href: '/dashboard/users', permission: null, adminOnly: true },
+    { label: 'Roles', href: '/dashboard/roles', permission: null, adminOnly: true },
 ]
 
 export default function DashboardSidebar({ role, permissions }) {
     const pathname = usePathname()
-    const safePermissions = Array.isArray(permissions) ? permissions : []
+    const safePermissions = normalizePermissions(permissions)
 
     function canAccess(item) {
         if (role === 'ADMIN') return true
         if (item.adminOnly) return false
         if (item.permission === null) return true
-        return safePermissions.includes(item.permission)
+        return canAccessSection({ role, permissions: safePermissions }, item.permission)
     }
 
     return (

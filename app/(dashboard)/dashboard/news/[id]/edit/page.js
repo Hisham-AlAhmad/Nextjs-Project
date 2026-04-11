@@ -1,12 +1,18 @@
 import { notFound } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import NewsForm from '@/components/dashboard/NewsForm'
 import Link from 'next/link'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/dashboard/crudList.module.css'
+import { authOptions } from '@/lib/auth'
+import { hasPermission } from '@/lib/permissions'
 
 export const metadata = { title: 'Edit News Post — Arcline Dashboard' }
 
 export default async function EditNewsPostPage({ params }) {
+  const session = await getServerSession(authOptions)
+  if (!hasPermission(session?.user || {}, 'news', 'edit')) notFound()
+
   const { id } = await params
   let post
   try {

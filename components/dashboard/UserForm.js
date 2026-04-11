@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { PERMISSION_ACTIONS, PERMISSION_SECTIONS, normalizePermissions } from '@/lib/permissions'
 import styles from '@/styles/dashboard/form.module.css'
 
-const ALL_PERMISSIONS = ['projects', 'blog', 'news', 'pages', 'submissions']
+const ALL_PERMISSIONS = PERMISSION_SECTIONS.flatMap(section => PERMISSION_ACTIONS.map(action => `${section}:${action}`))
 
 export default function UserForm({ user }) {
   const router = useRouter()
@@ -15,11 +16,29 @@ export default function UserForm({ user }) {
     email: user?.email || '',
     password: '',
     role: user?.role || 'EDITOR',
-    permissions: Array.isArray(user?.permissions) ? user.permissions : [],
+    dashboardRoleId: user?.dashboardRoleId || '',
+    permissions: normalizePermissions(user?.permissions),
   })
+  const [availableRoles, setAvailableRoles] = useState([])
+  const [loadingRoles, setLoadingRoles] = useState(true)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    async function loadRoles() {
+      try {
+        const res = await fetch('/api/roles')
+        if (!res.ok) return
+        const data = await res.json()
+        setAvailableRoles(Array.isArray(data) ? data : [])
+      } finally {
+        setLoadingRoles(false)
+      }
+    }
+
+    loadRoles()
+  }, [])
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -29,9 +48,19 @@ export default function UserForm({ user }) {
   function handlePermissionToggle(perm) {
     setForm(f => ({
       ...f,
+      dashboardRoleId: '',
       permissions: f.permissions.includes(perm)
         ? f.permissions.filter(p => p !== perm)
         : [...f.permissions, perm],
+    }))
+  }
+
+  function applyRoleTemplate(roleId) {
+    const pickedRole = availableRoles.find(role => String(role.id) === String(roleId))
+    setForm(f => ({
+      ...f,
+      dashboardRoleId: roleId,
+      permissions: pickedRole ? normalizePermissions(pickedRole.permissions) : f.permissions,
     }))
   }
 
@@ -116,22 +145,41 @@ export default function UserForm({ user }) {
       </div>
 
       {form.role === 'EDITOR' && (
-        <div className={styles.field}>
-          <label className={styles.label}>Permissions</label>
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', paddingTop: '4px' }}>
-            {ALL_PERMISSIONS.map(perm => (
-              <label key={perm} className={styles.checkLabel}>
-                <input
-                  type="checkbox"
-                  className={styles.checkbox}
-                  checked={form.permissions.includes(perm)}
-                  onChange={() => handlePermissionToggle(perm)}
-                />
-                {perm.charAt(0).toUpperCase() + perm.slice(1)}
-              </label>
-            ))}
+        <>
+          <div className={styles.field}>
+            <label className={styles.label}>Assigned Role Template</label>
+            <select
+              value={form.dashboardRoleId}
+              onChange={e => applyRoleTemplate(e.target.value)}
+              className={styles.select}
+            >
+              <option value="">No template (manual permissions)</option>
+              {availableRoles.map(role => (
+                <option key={role.id} value={role.id}>{role.name}</option>
+              ))}
+            </select>
+            <p className={styles.helperText}>
+              {loadingRoles ? 'Loading roles...' : 'Pick a reusable role, or leave empty for custom permissions below.'}
+            </p>
           </div>
-        </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Permissions</label>
+            <div style={{ display: 'grid', gap: '8px', paddingTop: '4px' }}>
+              {ALL_PERMISSIONS.map(perm => (
+                <label key={perm} className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    className={styles.checkbox}
+                    checked={form.permissions.includes(perm)}
+                    onChange={() => handlePermissionToggle(perm)}
+                  />
+                  {perm}
+                </label>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {error && <p className={styles.error}>{error}</p>}

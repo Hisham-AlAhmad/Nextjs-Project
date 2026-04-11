@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
+import { normalizePermissions } from '@/lib/permissions'
 
 export async function GET() {
   try {
@@ -11,7 +12,7 @@ export async function GET() {
 
     const users = await prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, email: true, role: true, permissions: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, permissions: true, dashboardRoleId: true, dashboardRole: { select: { id: true, name: true } }, createdAt: true },
     })
     return Response.json(users)
   } catch {
@@ -26,7 +27,7 @@ export async function POST(request) {
     if (session.user.role !== 'ADMIN') return Response.json({ error: 'Forbidden' }, { status: 403 })
 
     const body = await request.json()
-    const { name, email, password, role, permissions } = body
+    const { name, email, password, role, permissions, dashboardRoleId } = body
 
     if (!name || !email || !password) {
       return Response.json({ error: 'Name, email, and password are required' }, { status: 400 })
@@ -36,6 +37,22 @@ export async function POST(request) {
       return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
     }
 
+    let nextPermissions = normalizePermissions(permissions)
+    let nextDashboardRoleId = dashboardRoleId ? Number(dashboardRoleId) : null
+
+    if ((role || 'EDITOR') === 'EDITOR' && nextDashboardRoleId) {
+      const dashboardRole = await prisma.dashboardRole.findUnique({ where: { id: nextDashboardRoleId } })
+      if (!dashboardRole) {
+        return Response.json({ error: 'Selected role does not exist' }, { status: 400 })
+      }
+      nextPermissions = normalizePermissions(dashboardRole.permissions)
+    }
+
+    if ((role || 'EDITOR') === 'ADMIN') {
+      nextPermissions = []
+      nextDashboardRoleId = null
+    }
+
     const hashed = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({
       data: {
@@ -43,9 +60,10 @@ export async function POST(request) {
         email,
         password: hashed,
         role: role || 'EDITOR',
-        permissions: permissions || [],
+        permissions: nextPermissions,
+        dashboardRoleId: nextDashboardRoleId,
       },
-      select: { id: true, name: true, email: true, role: true, permissions: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, permissions: true, dashboardRoleId: true, dashboardRole: { select: { id: true, name: true } }, createdAt: true },
     })
     return Response.json(user, { status: 201 })
   } catch (err) {

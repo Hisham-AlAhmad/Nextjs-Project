@@ -11,26 +11,42 @@ export const metadata = {
 
 async function getData() {
   try {
-    const [heroContent, statsContent, projects, posts] = await Promise.all([
+    const [heroContent, statsContent, projects, posts, news] = await Promise.all([
       prisma.pageContent.findUnique({ where: { page_section: { page: 'home', section: 'hero' } } }),
       prisma.pageContent.findUnique({ where: { page_section: { page: 'home', section: 'stats' } } }),
       prisma.project.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 6, select: { id: true, title: true, slug: true, excerpt: true, category: true, images: true } }),
-      prisma.blogPost.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, title: true, slug: true, excerpt: true, createdAt: true } }),
+      prisma.blogPost.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, title: true, slug: true, excerpt: true, coverImage: true, createdAt: true } }),
+      prisma.newsPost.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 2, select: { id: true, title: true, slug: true, coverImage: true } }),
     ])
-    return { heroContent, statsContent, projects, posts }
+
+    const gallery = projects
+      .flatMap(project => (Array.isArray(project.images) ? project.images : []))
+      .filter(Boolean)
+      .slice(0, 8)
+
+    return { heroContent, statsContent, projects, posts, news, gallery }
   } catch {
-    return { heroContent: null, statsContent: null, projects: [], posts: [] }
+    return { heroContent: null, statsContent: null, projects: [], posts: [], news: [], gallery: [] }
   }
 }
 
 export default async function HomePage() {
-  const { heroContent, statsContent, projects, posts } = await getData()
+  const { heroContent, statsContent, projects, posts, news, gallery } = await getData()
 
   const hero = heroContent?.content || {
+    badge: 'Award-winning architecture studio',
     heading: 'Spaces That Endure',
     subheading: 'We design architecture that transcends trends — rooted in precision, shaped by vision.',
     ctaText: 'View Our Work',
+    ctaSecondaryText: 'Explore Journal',
+    highlightOne: 'Concept to Completion',
+    highlightTwo: 'Interior + Architecture',
+    imagePrimary: '',
+    imageSecondary: '',
   }
+
+  const heroPrimaryImage = hero.imagePrimary || gallery[0] || posts[0]?.coverImage || news[0]?.coverImage || ''
+  const heroSecondaryImage = hero.imageSecondary || gallery[1] || posts[1]?.coverImage || news[1]?.coverImage || ''
 
   const stats = statsContent?.content || {
     projects: '120+',
@@ -43,12 +59,35 @@ export default async function HomePage() {
     <PublicLayout>
       {/* Hero */}
       <section className={styles.hero}>
+        <div className={styles.heroGlowA} />
+        <div className={styles.heroGlowB} />
         <div className={styles.heroInner}>
-          <h1 className={styles.heroHeading}>{hero.heading}</h1>
-          <p className={styles.heroSub}>{hero.subheading}</p>
-          <div className={styles.heroCtas}>
-            <Link href="/projects" className={styles.heroCta}>{hero.ctaText || 'View Our Work'}</Link>
-            <Link href="/about" className={styles.heroCtaSecondary}>Our Story</Link>
+          <div className={styles.heroCopy}>
+            <span className={styles.heroBadge}>{hero.badge || 'Award-winning architecture studio'}</span>
+            <h1 className={styles.heroHeading}>{hero.heading}</h1>
+            <p className={styles.heroSub}>{hero.subheading}</p>
+            <div className={styles.heroHighlights}>
+              <span className={styles.heroPill}>{hero.highlightOne || 'Concept to Completion'}</span>
+              <span className={styles.heroPill}>{hero.highlightTwo || 'Interior + Architecture'}</span>
+            </div>
+            <div className={styles.heroCtas}>
+              <Link href="/projects" className={styles.heroCta}>{hero.ctaText || 'View Our Work'}</Link>
+              <Link href="/blog" className={styles.heroCtaSecondary}>{hero.ctaSecondaryText || 'Explore Journal'}</Link>
+            </div>
+          </div>
+
+          <div className={styles.heroVisual}>
+            {heroPrimaryImage && (
+              <div className={styles.heroImagePrimary}>
+                <Image src={heroPrimaryImage} alt="Featured architecture project" fill className={styles.img} priority />
+              </div>
+            )}
+            {heroSecondaryImage && (
+              <div className={styles.heroImageSecondary}>
+                <Image src={heroSecondaryImage} alt="Studio highlight" fill className={styles.img} />
+              </div>
+            )}
+            <div className={styles.heroFloatingCard}>Live project delivery in 8 countries</div>
           </div>
         </div>
       </section>
@@ -106,6 +145,25 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Gallery */}
+      {gallery.length > 0 && (
+        <section className={styles.section}>
+          <div className={styles.sectionInner}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Studio Gallery</h2>
+              <Link href="/projects" className={styles.sectionLink}>More Visual Stories →</Link>
+            </div>
+            <div className={styles.galleryGrid}>
+              {gallery.map((image, index) => (
+                <div key={`${image}-${index}`} className={styles.galleryItem}>
+                  <Image src={image} alt={`Gallery image ${index + 1}`} fill className={styles.img} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* About Teaser */}
       <section className={styles.about}>
         <div className={styles.aboutInner}>
@@ -132,6 +190,11 @@ export default async function HomePage() {
             <div className={styles.blogGrid}>
               {posts.map(post => (
                 <Link key={post.id} href={`/blog/${post.slug}`} className={styles.blogCard}>
+                  {post.coverImage && (
+                    <div className={styles.blogImageWrap}>
+                      <Image src={post.coverImage} alt={post.title} fill className={styles.img} />
+                    </div>
+                  )}
                   <span className={styles.blogDate}>{new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                   <h3 className={styles.blogTitle}>{post.title}</h3>
                   <p className={styles.blogExcerpt}>{post.excerpt}</p>

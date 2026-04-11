@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
+import { normalizePermissions } from '@/lib/permissions'
 
 export async function GET(request, { params }) {
   try {
@@ -12,7 +13,7 @@ export async function GET(request, { params }) {
     const { id } = await params
     const user = await prisma.user.findUnique({
       where: { id: Number(id) },
-      select: { id: true, name: true, email: true, role: true, permissions: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, permissions: true, dashboardRoleId: true, dashboardRole: { select: { id: true, name: true } }, createdAt: true },
     })
     if (!user) return Response.json({ error: 'Not found' }, { status: 404 })
     return Response.json(user)
@@ -29,13 +30,38 @@ export async function PUT(request, { params }) {
 
     const { id } = await params
     const body = await request.json()
-    const { name, email, password, role, permissions } = body
+    const { name, email, password, role, permissions, dashboardRoleId } = body
 
     const updateData = {}
     if (name !== undefined) updateData.name = name
     if (email !== undefined) updateData.email = email
     if (role !== undefined) updateData.role = role
-    if (permissions !== undefined) updateData.permissions = permissions
+
+    let nextRole = role
+    if (nextRole === undefined) {
+      const existing = await prisma.user.findUnique({ where: { id: Number(id) }, select: { role: true } })
+      nextRole = existing?.role
+    }
+
+    let nextPermissions = permissions !== undefined ? normalizePermissions(permissions) : undefined
+    let nextDashboardRoleId = dashboardRoleId !== undefined ? (dashboardRoleId ? Number(dashboardRoleId) : null) : undefined
+
+    if (nextRole === 'EDITOR' && nextDashboardRoleId) {
+      const dashboardRole = await prisma.dashboardRole.findUnique({ where: { id: nextDashboardRoleId } })
+      if (!dashboardRole) {
+        return Response.json({ error: 'Selected role does not exist' }, { status: 400 })
+      }
+      nextPermissions = normalizePermissions(dashboardRole.permissions)
+    }
+
+    if (nextRole === 'ADMIN') {
+      nextPermissions = []
+      nextDashboardRoleId = null
+    }
+
+    if (nextPermissions !== undefined) updateData.permissions = nextPermissions
+    if (nextDashboardRoleId !== undefined) updateData.dashboardRoleId = nextDashboardRoleId
+
     if (password) {
       if (password.length < 8) return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
       updateData.password = await bcrypt.hash(password, 12)
@@ -44,7 +70,7 @@ export async function PUT(request, { params }) {
     const user = await prisma.user.update({
       where: { id: Number(id) },
       data: updateData,
-      select: { id: true, name: true, email: true, role: true, permissions: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, permissions: true, dashboardRoleId: true, dashboardRole: { select: { id: true, name: true } }, createdAt: true },
     })
     return Response.json(user)
   } catch (err) {

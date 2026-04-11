@@ -1,12 +1,18 @@
 import { notFound } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import BlogForm from '@/components/dashboard/BlogForm'
 import Link from 'next/link'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/dashboard/crudList.module.css'
+import { authOptions } from '@/lib/auth'
+import { hasPermission } from '@/lib/permissions'
 
 export const metadata = { title: 'Edit Post — Arcline Dashboard' }
 
 export default async function EditBlogPostPage({ params }) {
+  const session = await getServerSession(authOptions)
+  if (!hasPermission(session?.user || {}, 'blog', 'edit')) notFound()
+
   const { id } = await params
   let post
   try {

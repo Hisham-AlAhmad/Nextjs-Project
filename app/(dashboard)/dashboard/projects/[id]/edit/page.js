@@ -1,12 +1,18 @@
 import { notFound } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import ProjectForm from '@/components/dashboard/ProjectForm'
 import Link from 'next/link'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/dashboard/crudList.module.css'
+import { authOptions } from '@/lib/auth'
+import { hasPermission } from '@/lib/permissions'
 
 export const metadata = { title: 'Edit Project — Arcline Dashboard' }
 
 export default async function EditProjectPage({ params }) {
+  const session = await getServerSession(authOptions)
+  if (!hasPermission(session?.user || {}, 'projects', 'edit')) notFound()
+
   const { id } = await params
   let project
   try {

@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasTextContent, toPlainText } from '@/lib/richTextUtils'
+import { hasPermission } from '@/lib/permissions'
 
 export async function GET() {
   try {
@@ -19,6 +20,7 @@ export async function POST(request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!hasPermission(session.user, 'projects', 'add')) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
     const body = await request.json()
     const { title, slug, excerpt, description, category, images, details, published } = body

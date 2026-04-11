@@ -15,9 +15,9 @@ export default async function UsersPage() {
   try {
     users = await prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, email: true, role: true, permissions: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, permissions: true, dashboardRoleId: true, dashboardRole: { select: { name: true } }, createdAt: true },
     })
-  } catch {}
+  } catch { }
 
   return (
     <div>
@@ -39,6 +39,7 @@ export default async function UsersPage() {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Assigned Role</th>
                 <th>Permissions</th>
                 <th>Joined</th>
                 <th>Actions</th>
@@ -56,6 +57,7 @@ export default async function UsersPage() {
                         {user.role}
                       </span>
                     </td>
+                    <td className={styles.tdMuted}>{user.dashboardRole?.name || (user.role === 'ADMIN' ? 'System Admin' : 'Custom')}</td>
                     <td className={styles.tdMuted}>
                       {user.role === 'ADMIN' ? 'All' : perms.length > 0 ? perms.join(', ') : 'None'}
                     </td>

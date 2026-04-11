@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { toPlainText } from '@/lib/richTextUtils'
+import { hasPermission } from '@/lib/permissions'
 
 export async function GET(request, { params }) {
   try {
@@ -18,6 +19,7 @@ export async function PUT(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!hasPermission(session.user, 'projects', 'edit')) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
     const { id } = await params
     const body = await request.json()
@@ -48,6 +50,7 @@ export async function DELETE(request, { params }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!hasPermission(session.user, 'projects', 'delete')) return Response.json({ error: 'Forbidden' }, { status: 403 })
 
     const { id } = await params
     await prisma.project.delete({ where: { id: Number(id) } })

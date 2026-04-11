@@ -1,5 +1,6 @@
 import PublicLayout from '@/components/public/PublicLayout'
 import Link from 'next/link'
+import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/public/blog.module.css'
 
@@ -13,7 +14,7 @@ async function getData() {
     const posts = await prisma.newsPost.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
-      select: { id: true, title: true, slug: true, excerpt: true, createdAt: true, author: { select: { name: true } } },
+      select: { id: true, title: true, slug: true, excerpt: true, coverImage: true, createdAt: true, author: { select: { name: true } } },
     })
     return { posts }
   } catch {
@@ -41,6 +42,11 @@ export default async function NewsPage() {
             <div className={styles.list}>
               {posts.map(post => (
                 <Link key={post.id} href={`/news/${post.slug}`} className={styles.card}>
+                  {post.coverImage && (
+                    <div className={styles.cardImageWrap}>
+                      <Image src={post.coverImage} alt={post.title} fill className={styles.cardImage} />
+                    </div>
+                  )}
                   <div className={styles.cardMeta}>
                     <span className={styles.date}>{new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     {post.author?.name && <span className={styles.author}>by {post.author.name}</span>}

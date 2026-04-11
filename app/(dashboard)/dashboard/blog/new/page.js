@@ -1,10 +1,17 @@
 import BlogForm from '@/components/dashboard/BlogForm'
 import Link from 'next/link'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { hasPermission } from '@/lib/permissions'
 import styles from '@/styles/dashboard/crudList.module.css'
 
 export const metadata = { title: 'New Post — Arcline Dashboard' }
 
-export default function NewBlogPostPage() {
+export default async function NewBlogPostPage() {
+  const session = await getServerSession(authOptions)
+  if (!hasPermission(session?.user || {}, 'blog', 'add')) redirect('/dashboard/blog')
+
   return (
     <div>
       <div className={styles.pageHeader}>

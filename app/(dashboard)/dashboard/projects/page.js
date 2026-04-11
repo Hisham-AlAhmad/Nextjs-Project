@@ -3,11 +3,16 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import styles from '@/styles/dashboard/crudList.module.css'
+import DeleteRowButton from '@/components/dashboard/DeleteRowButton'
+import { hasPermission } from '@/lib/permissions'
 
 export const metadata = { title: 'Projects — Arcline Dashboard' }
 
 export default async function DashboardProjectsPage() {
   const session = await getServerSession(authOptions)
+  const canAdd = hasPermission(session?.user || {}, 'projects', 'add')
+  const canEdit = hasPermission(session?.user || {}, 'projects', 'edit')
+  const canDelete = hasPermission(session?.user || {}, 'projects', 'delete')
 
   let projects = []
   try {
@@ -24,12 +29,14 @@ export default async function DashboardProjectsPage() {
           <h1 className={styles.title}>Projects</h1>
           <p className={styles.sub}>{projects.length} total</p>
         </div>
-        <Link href="/dashboard/projects/new" className={styles.newBtn}>+ New Project</Link>
+        {canAdd && <Link href="/dashboard/projects/new" className={styles.newBtn}>+ New Project</Link>}
       </div>
 
       <div className={styles.card}>
         {projects.length === 0 ? (
-          <p className={styles.empty}>No projects yet. <Link href="/dashboard/projects/new" className={styles.emptyLink}>Create your first one →</Link></p>
+          <p className={styles.empty}>
+            No projects yet. {canAdd ? <Link href="/dashboard/projects/new" className={styles.emptyLink}>Create your first one →</Link> : ''}
+          </p>
         ) : (
           <table className={styles.table}>
             <thead>
@@ -52,8 +59,9 @@ export default async function DashboardProjectsPage() {
                     </span>
                   </td>
                   <td className={styles.tdMuted}>{new Date(project.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <Link href={`/dashboard/projects/${project.id}/edit`} className={styles.editLink}>Edit</Link>
+                  <td className={styles.actionsCell}>
+                    {canEdit && <Link href={`/dashboard/projects/${project.id}/edit`} className={styles.editLink}>Edit</Link>}
+                    {canDelete && <DeleteRowButton endpoint={`/api/projects/${project.id}`} label="Delete" />}
                   </td>
                 </tr>
               ))}

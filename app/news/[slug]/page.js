@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import PublicLayout from '@/components/public/PublicLayout'
 import Link from 'next/link'
+import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import { toPlainText } from '@/lib/richTextUtils'
 import styles from '@/styles/public/blogDetail.module.css'
@@ -36,6 +37,11 @@ export default async function NewsPostPage({ params }) {
       <article>
         <header className={styles.header}>
           <div className={styles.headerInner}>
+            {post.coverImage && (
+              <div className={styles.coverWrap}>
+                <Image src={post.coverImage} alt={post.title} fill className={styles.coverImage} />
+              </div>
+            )}
             <h1 className={styles.title}>{post.title}</h1>
             <p className={styles.excerpt}>{post.excerpt}</p>
             <div className={styles.meta}>

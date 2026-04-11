@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { hasTextContent, toPlainText } from '@/lib/richTextUtils'
 import { ConfirmDelete } from './ConfirmDelete'
+import { ImageUploadButton } from './ImageUploadButton'
 import styles from '@/styles/dashboard/form.module.css'
 
 export default function NewsForm({ post }) {
@@ -15,6 +16,7 @@ export default function NewsForm({ post }) {
     slug: post?.slug || '',
     excerpt: post?.excerpt || '',
     content: toPlainText(post?.content || ''),
+    coverImage: post?.coverImage || '',
     published: post?.published ?? false,
   })
   const [error, setError] = useState('')
@@ -108,6 +110,22 @@ export default function NewsForm({ post }) {
       <div className={styles.field}>
         <label className={styles.label}>Excerpt *</label>
         <textarea name="excerpt" value={form.excerpt} onChange={handleChange} className={styles.textarea} rows={2} required />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>Cover Image</label>
+        <p className={styles.helperText}>Upload an image or paste an image URL for news cards and post header.</p>
+        <ImageUploadButton onImageUrl={url => setForm(f => ({ ...f, coverImage: url }))} loading={saving} />
+        <input
+          name="coverImage"
+          value={form.coverImage}
+          onChange={handleChange}
+          className={styles.input}
+          placeholder="https://example.com/news-cover.jpg"
+        />
+        {form.coverImage && (
+          <img src={form.coverImage} alt="News cover preview" className={styles.imagePreview} style={{ maxWidth: '260px', borderRadius: '10px' }} />
+        )}
       </div>
 
       <div className={styles.field}>
